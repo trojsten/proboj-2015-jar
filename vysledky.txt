@@ -1,0 +1,14 @@
+Sucet je 63130
+Povodny je 12733180
+Debug 201
+
+Dokopy:
+NaN              2698240  +  100 * 13640  =  4062240
+- Kuko, Peto
+47               2044380  +  100 * 13380  =  3382380
+- Kabell
+Zavarane         2923180  +  100 * 29230  =  5846180
+- Pali, Mario
+Ruzovy           3472600  +  100 * 3940  =  3866600
+- Baklazan
+Veduci           1594780  +  100 * 2940  =  1888780

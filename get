@@ -1,0 +1,40 @@
+#!/bin/bash
+bar=(0 0 0 0 0 0)
+for a in finalzaznamy/*/rank; do
+foo=( $(<$a) )
+#echo ${foo[@]}zzz
+for i in {0..5}; do (( bar[i] += foo[i] )); done
+done
+#echo ${bar[@]}
+orig=(
+0
+2698240
+2044380
+2923180
+3472600
+1594780
+)
+povodny=$(( orig[1]+orig[2]+orig[3]+orig[4]+orig[5] ))
+sucet=$(( bar[1] + bar[2] + bar[3] + bar[4] + bar[5] ))
+echo Sucet je $sucet
+echo Povodny je $povodny
+echo Debug $(( povodny / sucet ))
+#exit 1
+nasobok=$(( povodny/sucet ))
+nasobok=100
+
+nazvy=(
+""
+"NaN         "
+"47          "
+"Zavarane    "
+"Ruzovy      "
+"Veduci      "
+)
+
+
+echo
+echo Dokopy:
+for i in {1..5}; do
+echo "${nazvy[i]}     ${orig[i]}  +  $nasobok * ${bar[i]}  =  $(( orig[i] + nasobok * bar[i] ))"
+done
