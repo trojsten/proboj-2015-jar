@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <vector>
+#include <string>
 using namespace std;
 
 #include "common.h"
@@ -13,22 +14,27 @@ using namespace std;
 
 Mapa mapa;
 Stav stav;   // vzdy som hrac cislo 0
-Teren viditelnyTeren;
-vector<Prikaz> prikazy;
+Prikaz prikaz;
 
 
-// main() zavola tuto funkciu, ked nacita mapu
-void inicializuj() {
-  // (sem patri vas kod)
+void inicializuj(){
+    
 }
 
-
-// main() zavola tuto funkciu, ked chce vediet, ake prikazy chceme vykonat,
-// co tato funkcia rozhodne pomocou: prikazy.push_back(Prikaz(...));
-void zistiTah() {
-  // (sem patri vas kod)
+// main() zavola tuto funkciu, ked chce vediet, aky prikaz chceme vykonat,
+// co tato funkcia rozhodne pomocou toho, ako nastavi prikaz;
+void zistiTah(){
+    prikaz.smer = (rand()%100<5)? (prikaz.smer+1)%4 : prikaz.smer;
+    prikaz.smer = (rand()%100<5)? (prikaz.smer+3)%4 : prikaz.smer;
+    string s = prikaz.toString();
+    
+    fprintf(stderr, "som prikaza: %d\n", s.size()); 
+    for(int i=0; i < s.size(); i++){
+        fprintf(stderr, "%c", s[i]); 
+    }
+    fprintf(stderr, "\n"); 
+    
 }
-
 
 int main() {
   // v tejto funkcii su vseobecne veci, nemusite ju menit (ale mozte).
@@ -41,13 +47,9 @@ int main() {
   inicializuj();
 
   while (cin.good()) {
-    vector<int> zakodovanyTeren;
-    nacitaj(cin, zakodovanyTeren);
-    dekodujViditelnyTeren(zakodovanyTeren, viditelnyTeren);
     nacitaj(cin, stav);
-    prikazy.clear();
     zistiTah();
-    uloz(cout, prikazy);
+    uloz(cout, prikaz);
     cout << ".\n" << flush;   // bodka a flush = koniec odpovede
   }
 
