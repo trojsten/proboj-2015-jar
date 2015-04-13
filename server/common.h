@@ -2,10 +2,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-// vseobecne datove struktury a tak podobne
+// vseobecne datove struktury a makra
 
 #include <vector>
 #include <string>
+#include <cstdio>
 
 #define FOREACH(it,c) for (typeof((c).begin()) it = (c).begin(); it != (c).end(); ++it)
 
@@ -16,10 +17,19 @@
 #define LAVO 3
 
 
-#define MAPA_SUTER   0
-#define MAPA_VOLNO   1
-#define MAPA_START   2
-#define MAPA_BONUS   3
+#define MAPA_OKRAJ   1
+#define MAPA_SUTER   2
+#define MAPA_VOLNO   5
+#define MAPA_START   6
+#define MAPA_SPAWN   8
+
+#define JEDLO_TRAPNE      0 //nic sa nestane, len sa predlzite
+#define JEDLO_REVERS      1 //had sa otoci (pojdete dozadu), teda vector telo sa reverzne. vyhodnoti sa este pred pohybom a pohnete sa z novov hlavov
+#define JEDLO_PREZEN      2 //vyprazdni sa vam zasobnik, nic sa nepouzije.
+#define JEDLO_BOMBA       3 //vyparia sa kamene na najblizsich dvoch polickach v smere posledneho pohybu (neplati na oraj mapy)
+#define JEDLO_OTRAVA      4 //vyznacuje sa zapornym predlzenim
+#define JEDLO_CHOLERA     5 //kazdy okrem vas dostane otravu
+#define JEDLO_MIXER       6 //predlzite sa o predlzenie kazdeho jedla v zasobe. krat 2. potom sa zasobnik vyprazdni ale nic sa v skutocnosti nepouzije
 
 
 #define NIC -1
@@ -34,24 +44,28 @@ struct Bod {
   bool operator==(const Bod& b) const { return x == b.x && y == b.y; }
   bool operator!=(const Bod& b) const { return !(x == b.x && y == b.y); }
   bool operator<(const Bod& b) const { return y < b.y || (y == b.y && x < b.x); }
+  //vlejd extension, aby sa to spravalo ako vektor
+  Bod operator+(const Bod& b) const { return Bod(x+b.x,y+b.y); }
+  Bod operator-(const Bod& b) const { return Bod(x-b.x,y-b.y); }
+  
+  
 };
 
 
 struct Prikaz {
-  int smer;   // id manika co to ma vykonat
-  int pouzi;
-  int special;
+  int smer;   // Smer, kam sa ma hlava pohnut (vid makra a DX DY v update.cpp)
+  int pouzi;  // ktory bonus chceme pouzit (jeho poradove cislo, cislovane od 0)
   
   Prikaz() {
       smer = HORE;
-      pozil = NIC;
-      special = NIC;
+      pouzi = NIC;
   }
   
-  char* toString(){
+  string toString(){
       char bufer [50];
-      int n = sprintf(bufer,"smer:%d\npouzi: %d\nspecial: %d\n",this.smer,this.pouzi, this.special);
-      return bufer;      
+      sprintf(bufer,"smer:%d\npouzi: %d\n",this->smer,this->pouzi);
+      string b (bufer);
+      return b;      
   }
   
 };
@@ -62,18 +76,24 @@ typedef Prikaz Odpoved;
 
 struct Hrac {
   int skore;
-  std::vector<int> mapovanie;   // klienti nevidia
+  std::vector<int> mapovanie;   // klienti nevidia, tajne prehadzanie
 };
 
+struct Jedlo {
+    int typ;
+    Bod pozicia;  //kde sa nachadza
+    int prirastok;    //o kolko urcite narastiete, ked ho spapate
+    int zivotnost;    // kolko este vydrzi, potom zmizne
+};
 
 struct Snake {
-  int ktorehoHraca;   // vy ste 0
-  vector<Bod> telo;
-  int smer;
-  int dorastie;
-  vector<int> bonusy;
-  vector<int> buffy;
-  int zije;
+  int ktorehoHraca;   // WARNING vy ste 0
+  vector<Bod> telo;   //zoznam bodov, na zaciatku je hlava
+  int smer;           //kam sa naposledy pohol
+  int dorastie;       // kolko kvol este bude rast (o kolko sa postupne zvatsi
+  vector<Jedlo> zasoba; //ake jedlo ma v zasobe
+  vector<int> buffy;  // je pod vplybom nejakych bufov
+  int zije;         //zije vobec?
 };
 
 
@@ -100,19 +120,20 @@ struct Teren {
 
 
 struct Stav {
-  std::vector<Hrac> hraci;
-  std::vector<Snake> hadi;   // klienti vidia ciastocne
-  Teren teren;   // klienti nevidia, maju iba viditelnyTeren
+  std::vector<Hrac> hraci;  //zoznam hracov
+  std::vector<Snake> hadi;  //zoznam hadov
+  std::vector<Jedlo> jedlo; //zoznam jedal
+  Teren teren;   // proste teran, skoro az mapa
   int dalsiId;
   int cas;
 };
 
 
-struct Mapa {
-  int pocetHracov;
-  int w;
-  int h;
-  Teren pribliznyTeren;   // zlato a zelezo nemaju presne miesta
+struct Mapa { //velmi podobne ako stav teren, ale ma aj rozmery a nemeni sa. je to pociatocna mapa
+  int pocetHracov; // informacia o tom, kolko prave hracov mame
+  int w;//sirka
+  int h;//vyska
+  Teren pribliznyTeren;   // ako to vyzera na zaciatku
 };
 
 
@@ -129,10 +150,8 @@ reflection(Bod);
 end();
 
 reflection(Prikaz);
-  member(kto);
-  member(typPrikazu);
-  member(ciel);
-  member(parameter);
+  member(smer);
+  member(pouzi);
 end();
 
 reflection(Hrac);
@@ -140,16 +159,22 @@ reflection(Hrac);
   member(mapovanie);
 end();
 
-reflection(Manik);
-  member(id);
-  member(x);
-  member(y);
+reflection(Snake);
   member(ktorehoHraca);
+  member(telo);
+  member(smer);
+  member(dorastie);
+  member(zasoba);
+  member(buffy);
+  member(zije);
+end();
+
+
+reflection(Jedlo);
   member(typ);
-  member(zlato);
-  member(zelezo);
-  member(spenat);
-  member(kovacEnergia);
+  member(pozicia);
+  member(prirastok);
+  member(zivotnost);
 end();
 
 reflection(Teren);
@@ -158,8 +183,9 @@ end();
 
 reflection(Stav);
   member(hraci);
-  member(manici);
-  // teren neserializujeme
+  member(hadi);
+  member(jedlo);
+  member(teren);
   member(dalsiId);
   member(cas);
 end();

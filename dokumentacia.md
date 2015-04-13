@@ -25,7 +25,6 @@ V serveri je tiež zopár zdrojákov, čo vás bude zaujímať.
 Kľudne si prečítajte aj ostatné zdrojáky, ja sa len poteším, ale pri kódení
 vášho klienta vám asi nepomôžu.
 
-
 Ako kódiť klienta
 -----------------
 
@@ -50,13 +49,51 @@ Uploadujú sa zdrojáky a tie sa potom skompilujú (konkrétne sa spustí `make
 naserveri SERVERDIR=/adresar/kde/je/server`).
 
 
+Aky je proboj
+-------------
+
+Ste had. Had v nehodtinom prostredi. Hybete sa ako had, rastiete ako had, myslite 
+ako had. Casom ale hladnete a skracujete sa. Ked sa skratite prilis (0), tak zomriete.
+Su tu ale rozne veci. tie viete brat do zasoby a nasledne papat. Rozne veci vam 
+umoznia robit rozne veci po ich spapani. Napriklad narast, alebo aj ine. 
+
+Vasa zasoba ma ale obmedzenu velkost a nic z nej nemozete vyhodit. Vsetko musite 
+spapat. Ak by ste v nej mali toho prilis, tak sa spapa automaticky prve. 
+
+Nechcete ale narazit. Ani do kamenov, ani do hadov. Ked narazite, tak zomriete! 
+
 Ako sa ťahá
 -----------
 
-TODO zdokumentovať.
+V kazdom kole dostanete kompletny stav hry, teda ako vyzera cela mapa, kde je ake jedlo, 
+kde je aky hrac, atd. Jedine co mozete urobit je rozhodnut, do ktoreho smeru natocite
+svoju hlavu (ako snake). Cele telo sa potom pohne za nov. Pokial by ste mali narast,
+tak dorastiete na posledne policko, ktore by sa normalne uvolnilo (v skutocnosti teda
+dorastate maximalne 1 za kolo). 
+
+Dalej mozete spapat (jedno) jedlo, ktore mate v zasobe. Tak ze poslete v kolonke 
+prikaz->pouzi, jeho poradove cislo vo vasej zasobe.
 
 
 Pravidlá hry
 ------------
 
-TODO zdokumentovať.
+Pravidla su velmi jednoduche, ako bolo z casti popisane vyssie. pre konkretne informacie 
+odporucam plakat, alebo nahliadnut do update.cpp a polovit v komentaroch.
+
+inak bonusy su ako je v common.h
+
+Mapy
+----
+
+Mapy sa kreslia vo formate ppm. Optimalna velkost je okolo 100x100, lepsie je menej, 
+dlho to potom trva.
+
+legenda: 
+R   G   B
+255 255 255 MAPA_VOLNO
+0   0   0   MAPA_SUTER
+255 255 0   MAPA_SPAWN (tu sa rodia bonusy      
+0   255 0   MAPA_START tu sa rodia hadi    
+
+potom ich treba dat do adresara mapy

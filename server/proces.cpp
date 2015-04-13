@@ -1,3 +1,5 @@
+//SECURITY WARNING
+//Chod prec uboha dusa. temne su miesta kam vchadzas
 
 #include <errno.h>
 #include <cstring>

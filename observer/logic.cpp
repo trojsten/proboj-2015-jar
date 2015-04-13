@@ -18,7 +18,14 @@ using namespace std;
 
 #define DEFAULT_SCALE 5
 #define FINAL_DELAY 20
+#define CHCEM_VELKOST 600
 
+#define JEDLO_TRAPNE      0 
+#define JEDLO_REVERS      1 
+#define JEDLO_PREZEN      2
+#define JEDLO_BOMBA       3
+
+char jedlo[]={'T','R','P','B','O','C','M'};
 
 static int scale;
 static int formatVersion;
@@ -38,11 +45,24 @@ const int farbyHracov[] = {
   0xC00000,
   0x00C000,
   0x0000C0,
-  0x808000,
   0xC000C0,
   0x00C0C0,
+  0x808000,
+  0x808080,
+  0x008080  
 };
 
+const int farbyBonusov[] = {
+  0x662020,
+  0x206620,
+  0x202066,
+  0x992066,
+  0x996620,
+  0x209966,
+  0x206699,
+  0x662099,
+  0x669920  
+};
 
 template<class T> void checkStream(T& s, string filename) {
   if (s.fail()) {
@@ -92,7 +112,6 @@ void nacitajAdresar(string zaznamovyAdresar) {
   const char *scalevar = getenv("SCALE");
   scale = atoi(scalevar ? scalevar : "");
   if (!scale) scale = DEFAULT_SCALE;
-
   ifstream formatstream((zaznamovyAdresar+"/format").c_str());
   formatstream >> formatVersion;
   checkStream(formatstream, zaznamovyAdresar+"/format");
@@ -113,6 +132,7 @@ void nacitajAdresar(string zaznamovyAdresar) {
 
   ifstream mapastream((zaznamovyAdresar+"/map").c_str());
   nacitaj(mapastream, mapa);
+  scale= CHCEM_VELKOST/max(mapa.w, mapa.h);
   checkStream(mapastream, zaznamovyAdresar+"/map");
   mapastream.close();
 
@@ -173,11 +193,11 @@ void zistiVelkostObrazovky(int *w, int *h) {
 }
 
 
-static void putpixel(int x, int y, Uint32 c) {
+static void putpixel(double x, double y, Uint32 c) {
   Uint32* pixels = (Uint32 *)mapSurface->pixels;
   x *= scale; y *= scale;
   for (int xx = 0; xx < scale; xx++) for (int yy = 0; yy < scale; yy++) {
-    pixels[(y+yy) * mapSurface->w + (x+xx)] = c;
+    pixels[(int)(((floor(y)+yy) * mapSurface->w) + (floor(x)+xx))] = c;
   }
 }
 
@@ -213,73 +233,90 @@ private:
 void vykresluj(SDL_Surface *screen, double dnow) {
   if (dnow > stavy.size() + FINAL_DELAY) exit(0);
   int now = min((int)dnow, (int)stavy.size() - 1);
-
+  double interpolation = dnow-(floor(dnow));
   const Stav& stav = stavy[now];
-
+  const Stav& nstav = stavy[min(now+1,(int)stavy.size()-1)];
+  
+  
   SDL_LockSurface(mapSurface);
   for (int y = 0; y < mapa.h; y++) {
     for (int x = 0; x < mapa.w; x++) {
-      int tuto = (--teren[y][x].upper_bound(now))->second;
+      int tuto = stav.teren.get(Bod(x,y));
       switch (tuto) {
-        case MAPA_ZELEZO: putpixel(x, y, 0xFFD4D4); break;
-        case MAPA_ZLATO:  putpixel(x, y, 0xFFFF80); break;
-        case MAPA_SUTER:  putpixel(x, y, 0xFFFFFF); break;
-        case MAPA_VOLNO:  putpixel(x, y, 0xC0C0C0); break;
-        case MAPA_PASCA:
-          if (fmod(dnow, 0.2) < 0.1) {
-            putpixel(x, y, 0xFFFFFF);
-          } else {
-            putpixel(x, y, 0xFFC0C0);
-          }
+        case MAPA_SUTER:  putpixel(x, y, 0x000000); break;
+        case MAPA_VOLNO:  putpixel(x, y, 0xFFFFFF); break;
+        case MAPA_SPAWN:  putpixel(x, y, 0xFFF000); break;
         default:
           putpixel(x, y, 0x000000);
           break;
       }
     }
   }
-  FOREACH(it, stav.manici) {
-    putpixel(it->x, it->y, farbyHracov[it->ktorehoHraca]);
+  
+  //nakresli interpolovanych hadov
+  
+  for( int i = 0; i< nstav.hadi.size();i++) {
+    for(int j =0; j< max(nstav.hadi[i].telo.size(),stav.hadi[i].telo.size());j++){
+      if(j>= nstav.hadi[i].telo.size()){
+	Bod olds = stav.hadi[i].telo[j];
+	putpixel(olds.x, olds.y, farbyHracov[nstav.hadi[i].ktorehoHraca]); //TODO shadni to
+	continue;
+      }
+      
+      if(j>= stav.hadi[i].telo.size()){
+	Bod news = nstav.hadi[i].telo[j];
+	putpixel(news.x, news.y, farbyHracov[nstav.hadi[i].ktorehoHraca]); //TODO shadni to
+	continue;
+      }
+      Bod olds = stav.hadi[i].telo[j];
+      Bod news = nstav.hadi[i].telo[j];
+      double xxx = (1.0-interpolation)*olds.x+interpolation*news.x;
+      double yyy = (1.0-interpolation)*olds.y+interpolation*news.y;
+      //printf("%lf %lf %lf %d %d %d %d\n",interpolation,xxx,yyy,olds.x,olds.y, news.x,news.y);
+      putpixel(xxx,yyy , farbyHracov[nstav.hadi[i].ktorehoHraca]); //TODO shadni to
+      if(j<stav.hadi[i].telo.size()-1){ //aby to bolo v rohoch hranate
+	putpixel(olds.x,olds.y, farbyHracov[nstav.hadi[i].ktorehoHraca]); //TODO shadni to
+      }
+    }
   }
+  
+  //nakresli jedlo a bonusy
+  //TODO interpolovat jedlo, aj ked to asi nechcem. nech zomruuu
+  FOREACH(it, stav.jedlo){
+    putpixel(it->pozicia.x, it->pozicia.y, farbyBonusov[it->typ]);
+  }
+  
   SDL_UnlockSurface(mapSurface);
 
   SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
   SDL_BlitSurface(mapSurface, NULL, screen, NULL);
-
+  
   Printer header(screen, 0);
   header.print("Hráč", 20, false); header.print("Skóre", 5);
-  header.print("Au", 4); header.print("kAu", 4);
-  header.print("Fe", 4); header.print("kFe", 4);
-  header.print("Šn", 4);
-  const char* headertypy[] = { "BK", "SČ", "MČ", "SŽ", "SK", "SL", "LV", "KU", "KV" };
-  for (int i = 0; i < MANIK_POCET_TYPOV; i++) header.print(headertypy[i], 2);
-
+  header.print("telo", 4); 
+  header.print("zije", 4);
+  header.print("zasoba", 6);
+  
+  
   SDL_Rect hline; hline.x = 0; hline.y = mapSurface->h + fontHeight - 1; hline.w = screen->w; hline.h = 1;
   SDL_FillRect(screen, &hline, SDL_MapRGB(screen->format, 255, 255, 255));
-
+   
   for (int i = 0; i < mapa.pocetHracov; i++) {
-    int zlato = 0, kzlato = 0, zelezo = 0, kzelezo = 0, spenat = 0;
-    vector<int> t(MANIK_POCET_TYPOV, 0);
-    FOREACH(it, stav.manici) if (it->ktorehoHraca == i) {
-      zlato += it->zlato;
-      zelezo += it->zelezo;
-      spenat += it->spenat;
-      t[it->typ]++;
-      if (it->typ == MANIK_KOVAC) {
-        kzlato += it->zlato;
-        kzelezo += it->zelezo;
-      }
-    }
+    const Snake *s = &stav.hadi[i];
     Printer p(screen, i + 1);
     p.print(titles[i].c_str(), 20, false, farbyHracov[i]);
     p.print(itos(stav.hraci[i].skore).c_str(), 5);
-    p.print(itos(zlato).c_str(), 4);
-    p.print(itos(kzlato).c_str(), 4);
-    p.print(itos(zelezo).c_str(), 4);
-    p.print(itos(kzelezo).c_str(), 4);
-    p.print(itos(spenat).c_str(), 4);
-    for (int j = 0; j < MANIK_POCET_TYPOV; j++) p.print(itos(t[j]).c_str(), 2);
+    p.print(itos(s->telo.size()).c_str(), 4);
+    p.print(itos(s->zije).c_str(), 4);
+    string zasoba = " ";
+    for(int j=0;j<s->zasoba.size();j++) zasoba+=jedlo[s->zasoba[j].typ];
+    
+    p.print(zasoba.c_str(), 6);
+  
   }
-
+  
+  /*
+  */
   int realtimenow = SDL_GetTicks();
   frameTimes.insert(realtimenow);
   while (*frameTimes.begin() < realtimenow - 5000) frameTimes.erase(frameTimes.begin());

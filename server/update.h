@@ -7,6 +7,7 @@
 
 #include "common.h"
 
+
 extern const int DX[4];
 extern const int DY[4];
 
@@ -24,7 +25,7 @@ Stav zaciatokHry(const Mapa& mapa);
 //void prehladajLokalneBfs(const Teren& teren, Bod start, int rozsahLimit, std::map<Bod,int>& vzdialenost);
 void odsimulujKolo(const Mapa& mapa, Stav& stav, const std::vector<Odpoved>& akcie);
 //void zistiCoVidi(const Stav& stav, int hrac, Teren& viditelne);
-void zamaskujStav(const Mapa& mapa, const Stav& stav, int hrac, const Teren& viditelne, Stav& novy);
+void zamaskujStav(const Mapa& mapa, const Stav& stav, int hrac, Stav& novy);
 void odmaskujOdpoved(const Mapa& mapa, const Stav& stav, int hrac, Odpoved& odpoved);
 //void zakodujViditelnyTeren(const Teren &vstup, vector<int> &vystup);
 //void dekodujViditelnyTeren(const vector<int> &vstup, Teren &vystup);

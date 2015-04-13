@@ -1,4 +1,3 @@
-
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -9,6 +8,7 @@ using namespace std;
 
 #define chyba(...) (fprintf(stderr, __VA_ARGS__), false)
 
+//nacita povodnu mapu. len start, sutre, bonusove spavnovatka  a volno.
 bool nacitajMapu(Mapa& mapa, string filename, int pocetHracov) {
   FILE *in = fopen(filename.c_str(), "r");
   if (!in) return chyba("neviem citat '%s'\n", filename.c_str());
@@ -45,9 +45,11 @@ bool nacitajMapu(Mapa& mapa, string filename, int pocetHracov) {
       if (r == EOF || g == EOF || b == EOF) return chyba("necakany EOF pri citani '%s'\n", filename.c_str());
       if (r == 255 && g == 255 && b == 255) mapa.pribliznyTeren.data[y][x] = MAPA_VOLNO;
       else if (r == 0 && g == 0 && b == 0) mapa.pribliznyTeren.data[y][x] = MAPA_SUTER;
-      else if (r == 255 && g == 0 && b == 0) mapa.pribliznyTeren.data[y][x] = MAPA_ZELEZO;
-      else if (r == 255 && g == 255 && b == 0) mapa.pribliznyTeren.data[y][x] = MAPA_ZLATO;
+      //else if (r == 255 && g == 0 && b == 0) mapa.pribliznyTeren.data[y][x] = MAPA_VOLNO;
+      else if (r == 255 && g == 240 && b == 0) mapa.pribliznyTeren.data[y][x] = MAPA_SPAWN;
+      else if (r == 255 && g == 255 && b == 0) mapa.pribliznyTeren.data[y][x] = MAPA_SPAWN;
       else if (r == 0 && g == 255 && b == 0) mapa.pribliznyTeren.data[y][x] = MAPA_START;
+//       else mapa.pribliznyTeren.data[y][x] = MAPA_VOLNO;
       else return chyba("zla farba %d,%d,%d na pozicii %d,%d v '%s'\n", r, g, b, x, y, filename.c_str());
     }
   }

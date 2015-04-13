@@ -1,4 +1,5 @@
-
+//SECURITY WARNING
+//Chod prec uboha dusa. temne su miesta kam vchadzas
 #include <climits>
 #include <unistd.h>
 using namespace std;

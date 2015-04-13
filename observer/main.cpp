@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
   const char *fs = getenv("FULLSCREEN");
   SDL_Surface *screen = SDL_SetVideoMode(w, h, 32, SDL_SWSURFACE | (fs && *fs ? SDL_FULLSCREEN : 0));
 
-  string title = string("Observer - ") + argv[1];
+  string title = string("Observerr - ") + argv[1];
   SDL_WM_SetCaption(title.c_str(), title.c_str());
 
   int programBegin = SDL_GetTicks();

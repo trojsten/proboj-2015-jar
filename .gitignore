@@ -1,0 +1,15 @@
+.*
+!.git*
+*.o
+*.d
+*.py[co]
+*~
+server/server
+server/streamtest
+observer/observer
+klient.tar.gz
+hrac
+hlavnykomp/srvconfig
+hlavnykomp/webconfig
+hlavnykomp/web/*env
+/veduci

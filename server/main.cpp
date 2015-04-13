@@ -117,13 +117,13 @@ int main(int argc, char *argv[]) {
       int i = zijuci[z];
       pZijuci.push_back(&klienti[i]);
       stringstream requestbuf;
-      Teren viditelne;
+      /*Teren viditelne; //WARNING vsetko vidia, ziadne zakodovanie mapy. TODO serializuj teren
       zistiCoVidi(stav, i, viditelne);
       vector<int> zakodovaneViditelne;
       zakodujViditelnyTeren(viditelne, zakodovaneViditelne);
-      uloz(requestbuf, zakodovaneViditelne);
+      uloz(requestbuf, zakodovaneViditelne);*/
       Stav novy;
-      zamaskujStav(mapa, stav, i, viditelne, novy);
+      zamaskujStav(mapa, stav, i, novy);
       uloz(requestbuf, novy);
       requesty.push_back(requestbuf.str());
     }
@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
       int ok = skusNacitatSentinel(responsebuf, '.') && !responsebuf.fail();
       if (!ok) {
         log("nepodarilo sa nacitat odpoved od klienta %d", i);
-        odpovede[i].clear();
+        //odpovede[i].clear(); //TODO dat tam defaultnu odpoved ktora nic nehovori
         klienti[i].restartuj();
       }
     }
