@@ -188,8 +188,8 @@ void nacitajAdresar(string zaznamovyAdresar) {
 
 
 void zistiVelkostObrazovky(int *w, int *h) {
-  *w = mapa.w*scale;
-  *h = mapa.h*scale + fontHeight * (mapa.pocetHracov + 2);
+  *w = mapa.w*scale + 300;
+  *h = mapa.h*scale;
 }
 
 
@@ -204,7 +204,7 @@ static void putpixel(double x, double y, Uint32 c) {
 
 class Printer {
 public:
-  Printer(SDL_Surface *_screen, int _y) : screen(_screen), x(0), y(mapSurface->h + _y * fontHeight) {
+  Printer(SDL_Surface *_screen, int _y) : screen(_screen), x(mapSurface->w), y(_y * fontHeight) {
   }
   void print(const char *text, int width, bool right = true, Uint32 color = 0xFFFFFF) {
     SDL_Color fg; fg.r = (color>>16)&0xFF; fg.g = (color>>8)&0xFF; fg.b = (Uint8)(color&0xFF);
