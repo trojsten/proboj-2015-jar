@@ -1,5 +1,5 @@
 
-CXXFLAGS = -O2 -MMD -MP -Wall
+CXXFLAGS = -O2 -MMD -MP -Wall -std=gnu++11
 
 all: server
 

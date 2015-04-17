@@ -1,6 +1,6 @@
 
 SERVERDIR = ../server
-CXXFLAGS = -O2 -MMD -MP -Wall -I$(SERVERDIR)
+CXXFLAGS = -O2 -MMD -MP -Wall -I$(SERVERDIR) -std=gnu++11
 
 CXXFLAGS += $(shell sdl-config --cflags)
 LDLIBS += $(shell sdl-config --libs) -lSDL_ttf -lSDL_image
