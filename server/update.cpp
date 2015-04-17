@@ -152,7 +152,7 @@ void urobJedlo(const Mapa& mapa, Stav& stav, map<Bod,int>& mapJedla, const vecto
     else
     if(ake < 60){
         jed.typ = JEDLO_MIXER;
-        jed.prirastok = -5;
+        jed.prirastok = 0;
         jed.zivotnost = 10+ (rand()%80);
     
     }
@@ -227,9 +227,9 @@ void odsimulujKolo(const Mapa& mapa, Stav& stav, const vector<Odpoved>& akcie) {
                   if(it->ktorehoHraca==hrac) continue;
                   Jedlo muhaha;
                   muhaha.typ= JEDLO_OTRAVA;
-                  muhaha.prirastok = (rand()%10) +2;
+                  muhaha.prirastok = -((rand()%10) +2);
                   muhaha.zivotnost = 10+ (rand()%80);
-                  it->zasoba.push_back(Jedlo());
+                  it->zasoba.push_back(muhaha);
                 }
               }
               break;
