@@ -51,7 +51,8 @@
 {% block body %}
 
   <p><a href="{{ url_for('docs') }}">Dokumentácia</a></p>
-  <p><a href="{{ url_for('records') }}">Archív odohratých hier</a></p>
+  <p><a href="{{ url_for('records') }}">Posledných 20 odohratých hier</a></p>
+  <p><a href="{{ url_for('records_all') }}">Archív všetkých odohratých hier</a></p>
   {% if config['GIT'] %}
     <p><code>git clone {{ config['GIT'] }}</code> &larr; stiahne proboj</p>
     <p><code>git pull</code> &larr; aktualizuje na najnovšiu verziu (spúšťať v adresári "proboj")</p>

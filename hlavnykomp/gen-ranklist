@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+
+cd hlavnykomp/web
+python /tmp/proboj-server/jar2015/proboj/hlavnykomp/web/generate_rank.py

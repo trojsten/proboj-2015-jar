@@ -16,9 +16,9 @@ using namespace std;
 #include "marshal.h"
 #include "util.h"
 
-#define DEFAULT_SCALE 5
-#define FINAL_DELAY 20
-#define CHCEM_VELKOST 600
+#define DEFAULT_SCALE 10
+#define FINAL_DELAY 100
+#define CHCEM_VELKOST 1000
 
 #define JEDLO_TRAPNE      0 
 #define JEDLO_REVERS      1 
@@ -41,15 +41,21 @@ static TTF_Font *font;
 static int fontWidth, fontHeight;
 static SDL_Surface *mapSurface;
 
+vector<pair<string, string> > ranklist;
+
 const int farbyHracov[] = {
-  0xC00000,
-  0x00C000,
-  0x0000C0,
-  0xC000C0,
-  0x00C0C0,
-  0x808000,
-  0x808080,
-  0x008080  
+    0xcc00ff,
+    0x3737c8,
+    0x2ad4ff,
+    0x00ff66,
+    0x008000,
+    0xccff00,
+    0xffcc00,
+    0xff7f2a,
+    0x3c6432,
+    0x00300f,
+    0x00043d,
+    0x000a32,
 };
 
 const int farbyBonusov[] = {
@@ -116,6 +122,12 @@ void nacitajAdresar(string zaznamovyAdresar) {
   formatstream >> formatVersion;
   checkStream(formatstream, zaznamovyAdresar+"/format");
   formatstream.close();
+
+  ifstream rankliststream((zaznamovyAdresar+".ranklist").c_str());
+  string tempa, tempb;
+  while (rankliststream >> tempa >> tempb) {
+    ranklist.push_back(make_pair(tempa, tempb));   
+  }
 
   ifstream observationstream((zaznamovyAdresar+"/observation").c_str());
   string line;
@@ -206,9 +218,9 @@ class Printer {
 public:
   Printer(SDL_Surface *_screen, int _y) : screen(_screen), x(mapSurface->w), y(_y * fontHeight) {
   }
-  void print(const char *text, int width, bool right = true, Uint32 color = 0xFFFFFF) {
+  void print(const char *text, int width, bool right = true, Uint32 color = 0xFFFFFF, Uint32 bgcolor = 0x000000) {
     SDL_Color fg; fg.r = (color>>16)&0xFF; fg.g = (color>>8)&0xFF; fg.b = (Uint8)(color&0xFF);
-    SDL_Color bg = { 0, 0, 0 };
+    SDL_Color bg; bg.r = (bgcolor>>16)&0xFF; bg.g = (bgcolor>>8)&0xFF; bg.b = (Uint8)(bgcolor&0xFF);
 
     if (x != 0) {
       x++;
@@ -304,10 +316,17 @@ void vykresluj(SDL_Surface *screen, double dnow) {
   for (int i = 0; i < mapa.pocetHracov; i++) {
     const Snake *s = &stav.hadi[i];
     Printer p(screen, i + 1);
-    p.print(titles[i].c_str(), 20, false, farbyHracov[i]);
-    p.print(itos(stav.hraci[i].skore).c_str(), 5);
-    p.print(itos(s->telo.size()).c_str(), 4);
-    p.print(itos(s->zije).c_str(), 4);
+    if (dnow > stavy.size() && s->zije) {
+        p.print(titles[i].c_str(), 20, false, farbyHracov[i], 0xFF0000);
+        p.print(itos(stav.hraci[i].skore).c_str(), 5, true, 0xFFFFFF, 0xFF0000);
+        p.print(itos(s->telo.size()).c_str(), 4, true, 0xFFFFFF, 0xFF0000);
+        p.print(itos(s->zije).c_str(), 4, true, 0xFFFFFF, 0xFF0000);
+    } else {
+        p.print(titles[i].c_str(), 20, false, farbyHracov[i]);
+        p.print(itos(stav.hraci[i].skore).c_str(), 5);
+        p.print(itos(s->telo.size()).c_str(), 4);
+        p.print(itos(s->zije).c_str(), 4);
+    }
     string zasoba = " ";
     for(int j=0;j<s->zasoba.size();j++) zasoba+=jedlo[s->zasoba[j].typ];
     
@@ -325,4 +344,9 @@ void vykresluj(SDL_Surface *screen, double dnow) {
   sprintf(buf, "čas %d", now);
   if (realtimenow > 5000) sprintf(buf+strlen(buf), ", fps %.1f", frameTimes.size()/5.0);
   Printer(screen, mapa.pocetHracov + 1).print(buf, 30, false);
+  for (int i = 0; i < ranklist.size(); i++) {
+    Printer p(screen, mapa.pocetHracov + 2 + i);
+    p.print(ranklist[i].first.c_str(), 10);
+    p.print(ranklist[i].second.c_str(), 20);
+  }
 }

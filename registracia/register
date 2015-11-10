@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Zadaj po riadkoch svoj nazov, login a heslo (v tomto poradi)"
+python generate.py >> registracie.out

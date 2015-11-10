@@ -59,7 +59,7 @@ def get_records():
 def get_ranklist():
     ranks = dict((id, 0) for id, title, hash in druzinky)
     for id, manifest in get_records().items():
-        if manifest['state'] != 'displayed': continue
+#        if manifest['state'] != 'displayed': continue
         builds = manifest['clients'].split(',')
         myranks = manifest['rank'].split(',')
         for i, build in enumerate(builds):
@@ -255,5 +255,5 @@ def docs():
 
 
 if __name__ == '__main__':
-    app.run(host=('0.0.0.0' if os.getenv('FLASK_PUBLIC') else '127.0.0.1'))
-
+    for rank in get_ranklist():
+        print rank[0], rank[1]

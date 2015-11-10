@@ -1,0 +1,13 @@
+# -*- coding: utf8 -*-
+
+DRUZINKY = [
+  ('veduci', u'Vedúci', b'4dc371054ae822376790634e8cd06697332f92bb'),
+  ('dummy2' , u'dummy2', b'05e999edb61f90fe899d96b1a2c51b032332b67b' ),
+  ('zajo', u'zajo', b'fb68ee6ea0f23422b1d29905cb8cd0fec1603052'),
+  ('nulano' , u'Ondrej', b'447f4158b1e270cd30902a7e3096095beb5d4844' ),
+  ('buj' , u'buj', b'c24d8ee19afe940163cc35c51f15fad36eb2f57f' ),
+]
+
+GIT = 'git://10.47.47.1/proboj'
+
+SECRET_KEY = 'XRb2NzEpXIO1XX3kLGc7zYSbBQGn5l'
